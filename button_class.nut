@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------  
 // Name: button_trap
-// Purpose: Show the right way to debounce a button press...
+// Purpose: Example of how to debounce a button press... cloned from another example.
 // adapted by fliphunter to handle very noisy switches with a programmable sample period.
 // only produces press and release callbacks for paired debounced events as long the default condition is set properly.
 // another thing to keep in mind with sensing switches is that due to the low current the switch contacts should be gold plated
@@ -20,6 +20,7 @@ class button_trap
   _butt_1_raw_cnt  = 0;
   _butt_0_raw_cnt  = 0;
   _butt_state      = -1;
+  _butt_prev_state = -1;
   _butt_last       = -2;
   _butt_hit        = false;
   _pinread         = 0;
@@ -63,6 +64,7 @@ class button_trap
 
     if (_butt_cnt == _sample_rate)
     {
+      _butt_prev_state = _butt_state;
       _butt_state = _butt_last;
       if (_butt_state == 0)
       {
@@ -90,7 +92,7 @@ class button_trap
       }
       else
       {
-        if (_pressCallback != null)
+        if ((_pressCallback != null) && (_butt_state != _butt_prev_state))
         {
           _pressCallback();
         }
@@ -124,7 +126,7 @@ class button_trap
 b2 <- button_trap(hardware.pin2, DIGITAL_IN_PULLUP, button_trap.NORMALLY_HIGH,
             function(){server.log("Button 2 Pressed callback " + b2._butt_0_raw_cnt)},
             function(){server.log("Button 2 Released callback " + b2._butt_1_raw_cnt)},
-            button_trap.TRIP_CYCLES
+            10
             );
          
 // prime the logic.
